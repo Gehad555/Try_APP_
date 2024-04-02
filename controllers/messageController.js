@@ -31,8 +31,13 @@ module.exports.addMessage = async (req, res, next) => {
       sender: from,
     });
 
-    if (data) return res.json({ msg: "Message added successfully." });
-    else return res.json({ msg: "Failed to add message to the database" });
+    if (data) {
+      // Emit the newly added message to all connected clients
+      req.app.io.emit('message', { from, to, message });
+      return res.json({ msg: "Message added successfully." });
+    } else {
+      return res.json({ msg: "Failed to add message to the database" });
+    }
   } catch (ex) {
     next(ex);
   }
