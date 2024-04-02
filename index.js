@@ -1,11 +1,11 @@
+User
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const authRoutes = require("./routes/auth");
 const messageRoutes = require("./routes/messages");
 const app = express();
-const http = require('http').createServer(app);
-const io = require('socket.io')(http);
+const socket = require("socket.io");
 require("dotenv").config();
 
 app.use(cors());
@@ -17,7 +17,7 @@ mongoose
     useUnifiedTopology: true,
   })
   .then(() => {
-    console.log("DB Connection Successful");
+    console.log("DB Connetion Successfull");
   })
   .catch((err) => {
     console.log(err.message);
@@ -26,30 +26,27 @@ mongoose
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
 
+const server = app.listen(process.env.PORT, () =>
+  console.log(`Server started on ${process.env.PORT}`)
+);
+const io = socket(server, {
+  cors: {
+    origin: "https://try-app-2cya.onrender.com",
+    credentials: true,
+  },
+});
+
+global.onlineUsers = new Map();
 io.on("connection", (socket) => {
-  console.log("a user connected");
-
-  socket.on("disconnect", () => {
-    console.log("user disconnected");
-  });
-
+  global.chatSocket = socket;
   socket.on("add-user", (userId) => {
-    console.log("User added:", userId);
-    // Store the user's socket ID in a global map
     onlineUsers.set(userId, socket.id);
   });
 
   socket.on("send-msg", (data) => {
-    console.log("Message received:", data);
     const sendUserSocket = onlineUsers.get(data.to);
     if (sendUserSocket) {
-      // Send the message to the recipient's socket
-      io.to(sendUserSocket).emit("msg-receive", data.msg);
+      socket.to(sendUserSocket).emit("msg-recieve", data.msg);
     }
   });
-});
-
-const PORT = process.env.PORT || 3000;
-http.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
 });
