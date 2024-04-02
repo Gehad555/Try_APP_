@@ -29,8 +29,8 @@ const server = app.listen(process.env.PORT, () =>
   console.log(`Server started on ${process.env.PORT}`)
 );
 const io = socket(server, {
-  cors: { // https://chat-app-react-node-t7q2.onrender.com
-    origin: "http://localhost:5500",
+  cors: {
+    origin: "https://try-app-2cya.onrender.com",
     credentials: true,
   },
 });
