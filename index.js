@@ -1,4 +1,3 @@
-User
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
@@ -31,7 +30,7 @@ const server = app.listen(process.env.PORT, () =>
 );
 const io = socket(server, {
   cors: {
-    origin: "https://try-app-2cya.onrender.com",
+    origin: "https://chat-app-react-node-t7q2.onrender.com",
     credentials: true,
   },
 });
